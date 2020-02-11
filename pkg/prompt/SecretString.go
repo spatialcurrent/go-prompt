@@ -28,7 +28,7 @@ func SecretString(question string, stdout bool) (string, error) {
 
 	oldState, err := terminal.MakeRaw(0)
 	if err != nil {
-		return "", fmt.Errorf("error making terminal raw")
+		return "", fmt.Errorf("error making terminal raw: %w", err)
 	}
 
 	value := ""
