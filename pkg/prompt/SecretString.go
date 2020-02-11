@@ -20,9 +20,9 @@ import (
 func SecretString(question string, stdout bool) (string, error) {
 	if len(question) > 0 {
 		if stdout {
-			fmt.Fprintf(os.Stdout, "%s: ", question)
+			_, _ = fmt.Fprintf(os.Stdout, "%s: ", question)
 		} else {
-			fmt.Fprintf(os.Stderr, "%s: ", question)
+			_, _ = fmt.Fprintf(os.Stderr, "%s: ", question)
 		}
 	}
 
@@ -61,14 +61,14 @@ func SecretString(question string, stdout bool) (string, error) {
 	wg.Wait()
 
 	if oldState != nil {
-		terminal.Restore(0, oldState)
+		_ = terminal.Restore(0, oldState)
 	}
 
 	// add new line
 	if stdout {
-		fmt.Fprintln(os.Stdout, "")
+		_, _ = fmt.Fprintln(os.Stdout, "")
 	} else {
-		fmt.Fprintln(os.Stderr, "")
+		_, _ = fmt.Fprintln(os.Stderr, "")
 	}
 
 	return value, inputErr
