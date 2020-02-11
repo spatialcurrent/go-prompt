@@ -36,8 +36,6 @@ const (
 	flagQuestion = "question"
 	flagSecret   = "secret"
 	flagJSON     = "json"
-
-	NoLimit = -1
 )
 
 func initFlags(flag *pflag.FlagSet) {
