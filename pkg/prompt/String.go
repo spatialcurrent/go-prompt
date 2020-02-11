@@ -20,9 +20,9 @@ import (
 func String(question string, stdout bool) (string, error) {
 	if len(question) > 0 {
 		if stdout {
-			fmt.Fprintf(os.Stdout, "%s: ", question)
+			_, _ = fmt.Fprintf(os.Stdout, "%s: ", question)
 		} else {
-			fmt.Fprintf(os.Stderr, "%s: ", question)
+			_, _ = fmt.Fprintf(os.Stderr, "%s: ", question)
 		}
 	}
 
@@ -40,9 +40,9 @@ func String(question string, stdout bool) (string, error) {
 		inputErr = fmt.Errorf("received signal %q", s)
 		// add new line
 		if stdout {
-			fmt.Fprintln(os.Stdout, "")
+			_, _ = fmt.Fprintln(os.Stdout, "")
 		} else {
-			fmt.Fprintln(os.Stderr, "")
+			_, _ = fmt.Fprintln(os.Stderr, "")
 		}
 		// stop waiting
 		wg.Done()
