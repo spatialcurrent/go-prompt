@@ -10,11 +10,12 @@ package prompt
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func SecretString(question string, stdout bool) (string, error) {
