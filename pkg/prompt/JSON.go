@@ -30,39 +30,39 @@ func JSON(question string, stdout bool) (string, error) {
 	switch first {
 	case '[':
 		obj := make([]interface{}, 0)
-		err := json.Unmarshal([]byte(value), &obj)
-		if err != nil {
-			return "", fmt.Errorf("error unmarshaling array: %w", err)
+		errUnmarshal := json.Unmarshal([]byte(value), &obj)
+		if errUnmarshal != nil {
+			return "", fmt.Errorf("error unmarshaling array: %w", errUnmarshal)
 		}
-		compressed, err := json.Marshal(obj)
-		if err != nil {
-			return "", fmt.Errorf("error re-marshaling array: %w", err)
+		compressed, errMarshal := json.Marshal(obj)
+		if errMarshal != nil {
+			return "", fmt.Errorf("error re-marshaling array: %w", errMarshal)
 		}
 		return string(compressed), nil
 	case '{':
 		obj := map[string]interface{}{}
-		err := json.Unmarshal([]byte(value), &obj)
-		if err != nil {
-			return "", fmt.Errorf("error unmarshaling map: %w", err)
+		errUnmarshal := json.Unmarshal([]byte(value), &obj)
+		if errUnmarshal != nil {
+			return "", fmt.Errorf("error unmarshaling map: %w", errUnmarshal)
 		}
-		compressed, err := json.Marshal(obj)
-		if err != nil {
-			return "", fmt.Errorf("error re-marshaling map: %w", err)
+		compressed, errMarshal := json.Marshal(obj)
+		if errMarshal != nil {
+			return "", fmt.Errorf("error re-marshaling map: %w", errMarshal)
 		}
 		return string(compressed), nil
 	case '"':
 		obj := ""
-		err := json.Unmarshal([]byte(value), &obj)
-		if err != nil {
-			return "", fmt.Errorf("error unmarshaling string: %w", err)
+		errUnmarshal := json.Unmarshal([]byte(value), &obj)
+		if errUnmarshal != nil {
+			return "", fmt.Errorf("error unmarshaling string: %w", errUnmarshal)
 		}
 		return value, nil
 	}
 
 	obj := 0.0
-	err = json.Unmarshal([]byte(value), &obj)
-	if err != nil {
-		return "", fmt.Errorf("error unmarshaling float: %w", err)
+	errUnmarshal := json.Unmarshal([]byte(value), &obj)
+	if errUnmarshal != nil {
+		return "", fmt.Errorf("error unmarshaling float: %w", errUnmarshal)
 	}
 	return value, nil
 }
