@@ -1,0 +1,12 @@
+bin
+dist
+temp
+vendor
+Gopkg.lock
+*.so
+*.h
+.DS_Store
+.npm
+node_modules
+npm-debug.*
+package-lock.json
