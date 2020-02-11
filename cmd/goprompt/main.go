@@ -71,6 +71,7 @@ func main() {
 			}
 
 			question := v.GetString(flagQuestion)
+
 			if v.GetBool(flagSecret) {
 				if v.GetBool(flagJSON) {
 					value, err := prompt.SecretJSON(question, false)
@@ -80,36 +81,33 @@ func main() {
 					// print value to stdout
 					fmt.Println(value)
 					return nil
-				} else {
-					value, err := prompt.SecretString(question, false)
-					if err != nil {
-						return fmt.Errorf("error prompting for secret string: %w", err)
-					}
-					// print value to stdout
-					fmt.Println(value)
-					return nil
 				}
-			} else {
-				if v.GetBool(flagJSON) {
-					value, err := prompt.JSON(question, false)
-					if err != nil {
-						return fmt.Errorf("error prompting for JSON: %w", err)
-					}
-					// print value to stdout
-					fmt.Println(value)
-					return nil
-				} else {
-					value, err := prompt.String(question, false)
-					if err != nil {
-						return fmt.Errorf("error prompting for string: %w", err)
-					}
-					// print value to stdout
-					fmt.Println(value)
-					return nil
+				value, err := prompt.SecretString(question, false)
+				if err != nil {
+					return fmt.Errorf("error prompting for secret string: %w", err)
 				}
+				// print value to stdout
+				fmt.Println(value)
+				return nil
 			}
 
-			return errors.New("error with prompt configuration")
+			if v.GetBool(flagJSON) {
+				value, err := prompt.JSON(question, false)
+				if err != nil {
+					return fmt.Errorf("error prompting for JSON: %w", err)
+				}
+				// print value to stdout
+				fmt.Println(value)
+				return nil
+			}
+
+			value, err := prompt.String(question, false)
+			if err != nil {
+				return fmt.Errorf("error prompting for string: %w", err)
+			}
+			// print value to stdout
+			fmt.Println(value)
+			return nil
 		},
 	}
 	initFlags(rootCommand.Flags())
