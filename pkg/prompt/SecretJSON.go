@@ -13,8 +13,8 @@ import (
 	"unicode/utf8"
 )
 
-func SecretJSON(question string, stdout bool) (string, error) {
-	value, err := SecretString(question, stdout)
+func SecretJSON(question string, stdout bool, loop bool) (string, error) {
+	value, err := SecretString(question, stdout, loop)
 	if err != nil {
 		return "", err
 	}

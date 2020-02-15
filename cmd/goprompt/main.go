@@ -36,18 +36,20 @@ const (
 	flagQuestion = "question"
 	flagSecret   = "secret"
 	flagJSON     = "json"
+	flagLoop     = "loop"
 )
 
 func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagQuestion, "q", "", "the question for the prompt")
 	flag.BoolP(flagSecret, "s", false, "use secret prompt")
 	flag.BoolP(flagJSON, "j", false, "validate input as JSON")
+	flag.BoolP(flagLoop, "l", false, "loop until non-blank input")
 }
 
 func main() {
 
 	rootCommand := &cobra.Command{
-		Use:                   "goprompt [--secret] [--json] [--question QUESTION]",
+		Use:                   "goprompt [--question QUESTION] [--secret] [--json] [--loop]",
 		DisableFlagsInUseLine: true,
 		DisableFlagParsing:    false,
 		Short:                 `goprompt is a simple tool for prompting the user for input.`,
@@ -69,10 +71,11 @@ func main() {
 			}
 
 			question := v.GetString(flagQuestion)
+			loop := v.GetBool(flagLoop)
 
 			if v.GetBool(flagSecret) {
 				if v.GetBool(flagJSON) {
-					value, err := prompt.SecretJSON(question, false)
+					value, err := prompt.SecretJSON(question, false, loop)
 					if err != nil {
 						return fmt.Errorf("error prompting for secret JSON: %w", err)
 					}
@@ -80,7 +83,7 @@ func main() {
 					fmt.Println(value)
 					return nil
 				}
-				value, err := prompt.SecretString(question, false)
+				value, err := prompt.SecretString(question, false, loop)
 				if err != nil {
 					return fmt.Errorf("error prompting for secret string: %w", err)
 				}
@@ -90,7 +93,7 @@ func main() {
 			}
 
 			if v.GetBool(flagJSON) {
-				value, err := prompt.JSON(question, false)
+				value, err := prompt.JSON(question, false, loop)
 				if err != nil {
 					return fmt.Errorf("error prompting for JSON: %w", err)
 				}
@@ -99,7 +102,7 @@ func main() {
 				return nil
 			}
 
-			value, err := prompt.String(question, false)
+			value, err := prompt.String(question, false, loop)
 			if err != nil {
 				return fmt.Errorf("error prompting for string: %w", err)
 			}
