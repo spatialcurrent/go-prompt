@@ -12,13 +12,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func SecretString(question string, stdout bool) (string, error) {
+func SecretString(question string, stdout bool, loop bool) (string, error) {
 	if len(question) > 0 {
 		if stdout {
 			_, _ = fmt.Fprintf(os.Stdout, "%s: ", question)
@@ -35,31 +34,40 @@ func SecretString(question string, stdout bool) (string, error) {
 	value := ""
 	var inputErr error
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
+	done := make(chan bool, 1)
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGPIPE)
 	go func() {
-		s := <-signals
-		signal.Stop(signals)
-		inputErr = fmt.Errorf("received signal %q", s)
-		// stop waiting
-		wg.Done()
+		for s := range signals {
+			signal.Stop(signals)
+			inputErr = fmt.Errorf("received signal %q", s)
+			done <- true
+		}
 	}()
 
 	go func() {
-		b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-		if err != nil {
-			inputErr = fmt.Errorf("error reading secret string from terminal: %w", err)
-		} else {
-			value = string(bytes.TrimSpace(b))
+		for {
+			b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+			if err != nil {
+				inputErr = fmt.Errorf("error reading secret string from terminal: %w", err)
+				break
+			}
+			str := string(bytes.TrimSpace(b))
+			if len(str) == 0 && loop {
+				continue
+			}
+			value = str
+			break
 		}
 		// stop waiting
-		wg.Done()
+		done <- true
+		signal.Stop(signals)
+		close(signals)
 	}()
 
-	wg.Wait()
+	<-done
+
+	signal.Stop(signals)
 
 	if oldState != nil {
 		_ = terminal.Restore(0, oldState)

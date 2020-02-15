@@ -13,11 +13,10 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"sync"
 	"syscall"
 )
 
-func String(question string, stdout bool) (string, error) {
+func String(question string, stdout bool, loop bool) (string, error) {
 	if len(question) > 0 {
 		if stdout {
 			_, _ = fmt.Fprintf(os.Stdout, "%s: ", question)
@@ -29,37 +28,45 @@ func String(question string, stdout bool) (string, error) {
 	value := ""
 	var inputErr error
 
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
+	done := make(chan bool, 1)
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGPIPE)
 	go func() {
-		s := <-signals
-		signal.Stop(signals)
-		inputErr = fmt.Errorf("received signal %q", s)
-		// add new line
-		if stdout {
-			_, _ = fmt.Fprintln(os.Stdout, "")
-		} else {
-			_, _ = fmt.Fprintln(os.Stderr, "")
+		for s := range signals {
+			signal.Stop(signals)
+			inputErr = fmt.Errorf("received signal %q", s)
+			// add new line
+			if stdout {
+				_, _ = fmt.Fprintln(os.Stdout, "")
+			} else {
+				_, _ = fmt.Fprintln(os.Stderr, "")
+			}
+			// stop waiting
+			done <- true
 		}
-		// stop waiting
-		wg.Done()
 	}()
 
 	go func() {
-		str, err := bufio.NewReader(os.Stdin).ReadString('\n')
-		if err != nil {
-			inputErr = fmt.Errorf("error reading string from terminal: %w", err)
-		} else {
-			value = strings.TrimSpace(str)
+		for {
+			str, err := bufio.NewReader(os.Stdin).ReadString('\n')
+			if err != nil {
+				inputErr = fmt.Errorf("error reading string from terminal: %w", err)
+				break
+			}
+			str = strings.TrimSpace(str)
+			if len(str) == 0 && loop {
+				continue
+			}
+			value = str
+			break
 		}
 		// stop waiting
-		wg.Done()
+		done <- true
+		signal.Stop(signals)
+		close(signals)
 	}()
 
-	wg.Wait()
+	<-done
 
 	return value, inputErr
 }

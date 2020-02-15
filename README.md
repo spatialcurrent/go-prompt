@@ -42,11 +42,12 @@ See the usage below or the following examples.
 goprompt is a simple tool for prompting the user for input.
 
 Usage:
-  goprompt [--secret] [--json] [--question QUESTION]
+  goprompt [--question QUESTION] [--secret] [--json] [--loop]
 
 Flags:
   -h, --help              help for goprompt
   -j, --json              validate input as JSON
+  -l, --loop              loop until non-blank input
   -q, --question string   the question for the prompt
   -s, --secret            use secret prompt
 ```

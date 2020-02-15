@@ -13,8 +13,8 @@ import (
 	"unicode/utf8"
 )
 
-func JSON(question string, stdout bool) (string, error) {
-	value, err := String(question, stdout)
+func JSON(question string, stdout bool, loop bool) (string, error) {
+	value, err := String(question, stdout, loop)
 	if err != nil {
 		return "", err
 	}
